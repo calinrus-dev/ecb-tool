@@ -1,0 +1,85 @@
+# Credenciales OAuth - NUNCA VERSIONAR
+oauth/
+client_secrets.json
+*.json.backup
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Logs
+logs/
+*.log
+
+# FFmpeg binaries (demasiado grandes para GitHub)
+ffmpeg/bin/
+ffmpeg/doc/
+ffmpeg/presets/
+
+# Estado temporal y procesado
+data/conversion_state.csv
+data/upload_state.csv
+workspace/temp/
+workspace/procesed/
+
+# Archivos de trabajo (opcional - descomentar si no quieres versionarlos)
+# workspace/beats/
+# workspace/covers/
+# workspace/videos/
+# data/titles.txt
+# data/description.txt
+
+# Configuración específica del usuario
+config/theme.json
+config/language.json
+config/queue_state.json
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*~
+
+# Binarios de FFmpeg (son grandes, mejor documentar dónde descargar)
+# ffmpeg/bin/
+# ffmpeg/doc/
+
+# Archivos subidos
+uploaded/

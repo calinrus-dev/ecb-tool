@@ -1,0 +1,48 @@
+{
+    "rutas": {
+        "beats_entrada": "beats/",
+        "portadas_entrada": "covers/",
+        "videos_salida": "videos/",
+        "sonidos": "sounds/"
+    },
+    "conversion": {
+        "bpv": 1,
+        "lotes": 2,
+        "resolucion": "1920x1080",
+        "fps": 30,
+        "bitrate_video": "2M",
+        "formato_video": "mp4",
+        "fade_in_video": {
+            "activo": true,
+            "duracion": 2
+        },
+        "fade_out_video": {
+            "activo": true,
+            "duracion": 2
+        },
+        "fade_transicion_video": {
+            "activo": true,
+            "duracion": 1
+        },
+        "multiportada": false,
+        "loop_portada": true,
+        "bitrate_audio": "192k",
+        "fade_in_audio": {
+            "activo": true,
+            "duracion": 2
+        },
+        "fade_out_audio": {
+            "activo": true,
+            "duracion": 2
+        },
+        "fade_transicion_audio": {
+            "activo": false,
+            "duracion": 0
+        },
+        "formato_audio": "aac",
+        "nombre_salida_auto": true,
+        "ajuste_volumen_db": 0.0,
+        "autoborrado_beats": true,
+        "autoborrado_portadas": false
+    }
+}

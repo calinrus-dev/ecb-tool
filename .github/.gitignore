@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entornos virtuales
+.venv/
+venv/
+
+# Archivos de configuración de IDE
+.idea/
+.vscode/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs y temporales
+*.log
+*.tmp
+
+# Archivos de credenciales y datos sensibles
+configuracion/*.json
+!configuracion/ajustes_conversion.json
+!configuracion/ajustes_subida.json
+!configuracion/nombres.json
+!configuracion/orden.json
+!configuracion/rutas.json
+
+# Output y subidos
+subidos/
+videos/
+
+# Otros
+*.bak

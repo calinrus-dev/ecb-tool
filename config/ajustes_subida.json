@@ -1,0 +1,21 @@
+{
+    "rutas": {
+        "subidos": "uploaded/",
+        "titulos": "data/titles.txt",
+        "descripcion": "data/description.txt",
+        "estados_sub": "data/upload_state.csv"
+    },
+    "subida": {
+        "estado": "publico",
+        "contenido_alterado": false,
+        "etiqueta_promocional": false,
+        "contenido_niños": false,
+        "intervalo": 900,
+        "autoborrado_subidos": true,
+        "autoborrado_titulos": false,
+        "lotes": 1
+    },
+    "logica": {
+        "auto": false
+    }
+}

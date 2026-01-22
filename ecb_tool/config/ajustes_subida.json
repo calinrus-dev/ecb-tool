@@ -1,0 +1,11 @@
+{
+    "subida": {
+        "modo": "programado",
+        "estado": "publico",
+        "autoborrado_videos": false,
+        "papelera_videos": true,
+        "contenido_niños": false,
+        "videos_por_dia": 10,
+        "dias_programados": 30
+    }
+}

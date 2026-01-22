@@ -1,0 +1,24 @@
+{
+  "rutas": {
+    "beats_entrada": "beats/",
+    "portadas_entrada": "covers/",
+    "videos_salida": "videos/",
+    "subidos": "uploaded/",
+    "titulos": "data/titles.txt",
+    "descripcion": "data/description.txt",
+    "estados_conv": "data/conversion_state.csv",
+    "estados_sub": "data/upload_state.csv",
+    "sonidos": "sounds/",
+    "config": "config/config.json",
+    "ajustes_conversion": "config/ajustes_conversion.json",
+    "ajustes_subida": "config/ajustes_subida.json",
+    "gestor": "config/manager.py",
+    "nombres": "config/names.json",
+    "orden": "config/orden.json",
+    "rutas": "config/rutas.json",
+    "descripcion_datos": "data/description.txt",
+    "estado_conversion_datos": "data/conversion_state.csv",
+    "estado_subida_datos": "data/upload_state.csv",
+    "titulos_datos": "data/titles.txt"
+  }
+}

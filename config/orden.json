@@ -1,0 +1,10 @@
+{
+    "modo": "convertir",
+    "ordenes": 1,
+    "auto": true,
+    "proceso": false,
+    "videos_convertidos": 0,
+    "videos_subidos": 0,
+    "bpv": 1,
+    "cover_mode": "Random"
+}

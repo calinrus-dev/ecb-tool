@@ -1,0 +1,54 @@
+{
+  "interfaz": {
+    "ventanas": {
+      "VentanaPrincipal": "VentanaPrincipal",
+      "BarraSuperior": "BarraSuperior"
+    },
+    "bloques": {
+      "barra_superior": "BarraSuperior",
+      "panel_estado": "PanelEstado",
+      "modulos": "ModulosPanel",
+      "contadores": "ContadorWidget",
+      "contador": "ContadorWidget",
+      "selector": "SelectorModo",
+      "configuraciones": "TextoDesplegable",
+      "ejecutor": "TextoInterruptorToggle"
+    },
+    "piezas": {
+      "accionables": "InterruptorToggle",
+      "botones": "VentanaBotones",
+      "separadores": "separador_horizontal",
+      "texto": {
+        "texto_titulo": "texto_titulo",
+        "texto_encabezado": "texto_encabezado",
+        "texto_normal": "texto_normal",
+        "texto_barra": "texto_barra"
+      }
+    }
+  },
+  "nucleo": {
+    "convertidor": "convertidor.py",
+    "core": "core.py"
+  },
+  "configuracion": {
+    "ajustes_conversion": "ajustes_conversion.json",
+    "ajustes_subida": "ajustes_subida.json",
+    "config": "config.json",
+    "gestor": "gestor.py",
+    "nombres": "nombres.json",
+    "orden": "orden.json",
+    "rutas": "rutas.json"
+  },
+  "utilidades": {
+    "aplicar_ajustes": "aplicar_ajustes.py"
+  },
+  "datos": {
+    "descripcion": "descripcion.txt",
+    "estado_conversion": "estado_conversion.csv",
+    "estado_subida": "estado_subida.csv",
+    "titulos": "titulos.txt"
+  },
+  "subidos": "subidos/",
+  "videos": "videos/",
+  "beats": "beats/"
+}

@@ -1,0 +1,53 @@
+name: ✨ Feature Request
+description: Sugerir una nueva característica o mejora
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Gracias por sugerir una mejora para ECB TOOL!
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema o necesidad
+      description: Describe el problema que esta característica resolvería
+      placeholder: Actualmente es difícil/imposible...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solución propuesta
+      description: Describe la solución que te gustaría ver
+      placeholder: Me gustaría que la aplicación...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Alternativas que has considerado
+      placeholder: He pensado en...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridad
+      description: Qué tan importante es esta característica para ti
+      options:
+        - Crítica - bloqueante
+        - Alta - muy útil
+        - Media - sería bueno tener
+        - Baja - nice to have
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Información adicional
+      description: Mockups, ejemplos, referencias
