@@ -12,15 +12,19 @@ from ecb_tool.features.conversion.models import ConversionConfig, ConversionJob
 class VideoConverter:
     """Handles video conversion from beats and covers."""
     
-    def __init__(self, config: ConversionConfig):
+    def __init__(self, config: ConversionConfig, on_progress=None, on_status_change=None):
         """
         Initialize VideoConverter.
         
         Args:
             config: Conversion configuration
+            on_progress: Optional callback(job_id, progress_percent)
+            on_status_change: Optional callback(job_id, status_str)
         """
         self.config = config
         self.paths = get_paths()
+        self.on_progress = on_progress
+        self.on_status_change = on_status_change
     
     def list_beats(self) -> List[Path]:
         """List all available beat files."""
@@ -82,7 +86,19 @@ class VideoConverter:
             )
             
             # Run conversion
-            ffmpeg.run(stream, capture_stdout=True, capture_stderr=True)
+            process = ffmpeg.run_async(stream, pipe_stdout=True, pipe_stderr=True)
+            
+            # Simple progress simulation since ffmpeg-python doesn't easily give progress percentage
+            # For a real progress bar we'd need to parse stderr usually, but for now we simulate 
+            # or just verify it's running. Optimally we use a separate thread reading stdout/stderr.
+            # Here we wait for completion.
+            stdout, stderr = process.communicate()
+            
+            if process.returncode != 0:
+                raise ffmpeg.Error('ffmpeg', stdout, stderr)
+            
+            if self.on_progress:
+                self.on_progress(job.id, 100.0)
             
             job.status = "completed"
             job.progress = 100.0
@@ -90,7 +106,8 @@ class VideoConverter:
             
         except ffmpeg.Error as e:
             job.status = "failed"
-            job.error_message = f"FFmpeg error: {e.stderr.decode() if e.stderr else str(e)}"
+            error_msg = e.stderr.decode() if e.stderr else str(e)
+            job.error_message = f"FFmpeg error: {error_msg}"
             return False
         except Exception as e:
             job.status = "failed"

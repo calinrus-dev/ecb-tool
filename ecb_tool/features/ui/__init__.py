@@ -1,5 +1,5 @@
-"""UI Components - 100% autónoma sin dependencias de alpha/"""
+"""UI Components"""
 
-from ecb_tool.features.ui.legacy_src.presentation.main_window import MainWindow
+from ecb_tool.features.ui.main_window import MainWindow
 
 __all__ = ['MainWindow']

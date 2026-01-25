@@ -11,6 +11,7 @@ from ecb_tool.core.paths import get_paths
 from ecb_tool.core.config import ConfigManager
 from ecb_tool.features.conversion.models import ConversionConfig, ConversionJob
 from ecb_tool.features.conversion.converter import VideoConverter
+from ecb_tool.core.state_manager import get_state_manager
 
 
 class ConversionRunner:
@@ -19,6 +20,7 @@ class ConversionRunner:
     def __init__(self):
         """Initialize the conversion runner."""
         self.paths = get_paths()
+        self.state_manager = get_state_manager()
         self._load_config()
         self._setup_converter()
         self.should_stop = False
@@ -74,22 +76,35 @@ class ConversionRunner:
         if not covers:
             raise ValueError("No covers available")
         
-        # Load cover mode from order config
-        order_schema = {"cover_mode": "Random"}
-        order_config = ConfigManager(self.paths.order_config, order_schema)
-        cover_mode = order_config.get("cover_mode", "Random")
+        # Load cover mode from order config if not passed but prefer passed arg
+        # The original code loaded it here, but we will respect the 'mode' arg
         
-        if cover_mode == "Random":
+        if mode.lower() == "random":
             return random.choice(covers)
-        elif cover_mode == "Random (No Repeat)":
-            # TODO: Implement no-repeat logic with state tracking
-            return random.choice(covers)
-        elif cover_mode == "Select One":
-            # TODO: Implement UI selection
-            return covers[0]
-        elif cover_mode == "Sequential":
-            # TODO: Implement sequential with state tracking
-            return covers[0]
+            
+        elif mode == "Random (No Repeat)":
+            used_covers = self.state_manager.get_used_covers()
+            available = [c for c in covers if c.name not in used_covers]
+            
+            if not available:
+                # Reset if all used
+                self.state_manager.reset_used_covers()
+                available = covers
+                
+            selected = random.choice(available)
+            self.state_manager.add_used_cover(selected.name)
+            return selected
+            
+        elif mode == "Select One":
+            # For logic fallback, just use first. GUI should pass specific cover.
+            return covers[0] 
+            
+        elif mode == "Sequential":
+            index = self.state_manager.get_sequential_cover_index()
+            selected = covers[index % len(covers)]
+            self.state_manager.set_sequential_cover_index((index + 1) % len(covers))
+            return selected
+            
         else:
             return random.choice(covers)
     
@@ -120,7 +135,7 @@ class ConversionRunner:
             
             # Select cover
             try:
-                cover = self._select_cover(covers)
+                cover = self._select_cover(covers, mode=cover_mode)
             except ValueError as e:
                 print(f"⚠️ Error seleccionando portada: {e}")
                 break
@@ -203,7 +218,7 @@ class ConversionRunner:
             else:
                 print(f"❌ Error: {job.error_message}")
                 failed += 1
-                self._update_state(job, "failed")
+                self._update_state(job, "failed", job.error_message)
         
         # Summary
         print("\n" + "=" * 60)
@@ -214,10 +229,16 @@ class ConversionRunner:
         print(f"📁 Videos: {self.converter_config.videos_dir}")
         print("=" * 60)
     
-    def _update_state(self, job: ConversionJob, status: str):
+    def _update_state(self, job: ConversionJob, status: str, error: str = ""):
         """Update conversion state file."""
-        # TODO: Implement state tracking in CSV
-        pass
+        self.state_manager.log_conversion(
+            job_id=job.id,
+            beat=job.beat_file.name,
+            cover=job.cover_file.name,
+            output=job.output_file.name,
+            status=status,
+            error=error
+        )
 
 
 def main():
