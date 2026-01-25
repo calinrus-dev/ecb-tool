@@ -1,37 +1,46 @@
 from PyQt6.QtCore import QThread, pyqtSignal
-from ecb_tool.features.conversion.runner import ConversionRunner
+from ecb_tool.core.paths import get_paths
+from ecb_tool.features.conversion.converter import VideoConverter
+from ecb_tool.features.conversion.models import ConversionConfig, ConversionJob
+from pathlib import Path
 
 class ConversionWorker(QThread):
-    progress_signal = pyqtSignal(str, float)
-    status_signal = pyqtSignal(str, str)
+    progress_signal = pyqtSignal(str, float) # job_id, percent
+    status_signal = pyqtSignal(str, str)     # job_id, status
     log_signal = pyqtSignal(str)
     finished_signal = pyqtSignal()
     
-    def __init__(self, num_orders: int, parent=None):
+    def __init__(self, config: ConversionConfig, jobs: list[ConversionJob], parent=None):
         super().__init__(parent)
-        self.num_orders = num_orders
-        self.runner = ConversionRunner()
-        
-        if hasattr(self.runner, 'converter'):
-            self.runner.converter.on_progress = self._on_progress
-            self.runner.converter.on_status_change = self._on_status
-    
-    def _on_progress(self, job_id, percent):
-        self.progress_signal.emit(job_id, percent)
-        
-    def _on_status(self, job_id, status):
-        self.status_signal.emit(job_id, status)
+        self.config = config
+        self.jobs = jobs
+        self.stop_requested = False
         
     def run(self):
-        self.log_signal.emit("🚀 Iniciando proceso de conversión...")
-        try:
-            self.runner.run(self.num_orders)
-            self.log_signal.emit("✅ Proceso finalizado.")
-        except Exception as e:
-            self.log_signal.emit(f"❌ Error crítico: {str(e)}")
-        finally:
-            self.finished_signal.emit()
+        self.log_signal.emit("🚀 Starting conversion process...")
+        
+        converter = VideoConverter(self.config, on_progress=self._on_progress_callback)
+        
+        for job in self.jobs:
+            if self.stop_requested:
+                break
+                
+            self.status_signal.emit(job.id, "Processing")
+            self.log_signal.emit(f"Processing job: {job.id}")
+            
+            success = converter.convert(job)
+            
+            status = "Completed" if success else "Failed"
+            self.status_signal.emit(job.id, status)
+            
+            if success:
+                self.progress_signal.emit(job.id, 100.0)
+            
+        self.log_signal.emit("✅ Process finished.")
+        self.finished_signal.emit()
+
+    def _on_progress_callback(self, job_id, percent):
+        self.progress_signal.emit(job_id, percent)
 
     def stop(self):
-        if self.runner:
-            self.runner.paths.stop_flag.touch()
+        self.stop_requested = True

@@ -1,0 +1,49 @@
+/* Global Reset */
+QWidget {
+    font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #FFFFFF;
+    background: transparent;
+}
+
+/* Main Window */
+QMainWindow {
+    background-color: #0f0f11;
+}
+
+/* Scrollbars */
+QScrollBar:vertical {
+    border: none;
+    background: #18181b;
+    width: 8px;
+    margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:vertical {
+    background: #3f3f46;
+    min-height: 20px;
+    border-radius: 4px;
+}
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+QScrollBar:horizontal {
+    border: none;
+    background: #18181b;
+    height: 8px;
+    margin: 0px 0px 0px 0px;
+}
+QScrollBar::handle:horizontal {
+    background: #3f3f46;
+    min-width: 20px;
+    border-radius: 4px;
+}
+
+/* Tooltips */
+QToolTip {
+    background-color: #27272a;
+    color: #ffffff;
+    border: 1px solid #3f3f46;
+    padding: 4px;
+    border-radius: 4px;
+}

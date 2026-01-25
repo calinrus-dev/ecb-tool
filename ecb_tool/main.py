@@ -60,17 +60,55 @@ def main():
     
     # Create application
     app = QApplication(sys.argv)
-    app.setQuitOnLastWindowClosed(True)
+    app.setQuitOnLastWindowClosed(False) # Keep app alive when closing splash/login
     
     try:
-        # Import and create main window (NUEVA ESTRUCTURA)
-        from ecb_tool.features.ui import MainWindow
-        from ecb_tool.core.shared.screen_utils import get_screen_adapter
+        # Import components
+        from ecb_tool.features.ui.splash_screen import SplashScreen
+        from ecb_tool.features.ui.login_window import LoginWindow
+        from ecb_tool.features.ui.main_window_modern import MainWindow
         
-        window = MainWindow()
+        # 1. Show Splash
+        splash = SplashScreen()
+        splash.show()
         
-        # Iniciar en modo fullscreen
-        window.showFullScreen()
+        # Variable to hold windows to prevent GC
+        windows = {} 
+        
+        def show_login():
+            # 2. Show Login after Splash
+            login = LoginWindow()
+            windows['login'] = login
+            login.login_successful.connect(show_main)
+            login.show()
+            
+        def show_main():
+            # 3. Show Main Window after Login
+            main_win = MainWindow()
+            windows['main'] = main_win
+            
+            # Set quit on last window closed true now that we have the main window
+            app.setQuitOnLastWindowClosed(True)
+            
+            main_win.show()
+            main_win.showMaximized()
+            
+        # Connect splash finish to login show
+        # Since Splash uses QTimer and closes itself, we can just hook into the timer 
+        # or better: let's modify Splash to emit a signal or just use a single-shot timer here to simulate the orchestration if Splash wasn't async.
+        # But our Splash IS async with internal timer. 
+        # Let's pass a callback to splash or wait for it.
+        # Actually easier: The splash code closes itself. Let's just monitor it?
+        # No, let's just make the splash wait loop in main or similar? 
+        # Better approach for maintaining clean code:
+        # Pass a 'finished_callback' to Splash?
+        # Or just use a simple timer here in main to wait for splash?
+        # Let's Modify Splash slightly to emit a signal? No, I can't modify it in this tool call easily without overwrite.
+        
+        # Alternative: We already implemented Splash to close itself after 3s.
+        # We can just start a QTimer here to show Login after 3.2s
+        from PyQt6.QtCore import QTimer
+        QTimer.singleShot(3200, show_login)
         
         # Run application
         return app.exec()

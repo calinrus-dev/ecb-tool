@@ -1,5 +1,3 @@
-"""UI Components"""
-
-from ecb_tool.features.ui.main_window import MainWindow
+from ecb_tool.features.ui.main_window_modern import MainWindow
 
 __all__ = ['MainWindow']

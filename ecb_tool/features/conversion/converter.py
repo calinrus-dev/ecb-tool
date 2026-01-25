@@ -12,86 +12,67 @@ from ecb_tool.features.conversion.models import ConversionConfig, ConversionJob
 class VideoConverter:
     """Handles video conversion from beats and covers."""
     
-    def __init__(self, config: ConversionConfig, on_progress=None, on_status_change=None):
-        """
-        Initialize VideoConverter.
-        
-        Args:
-            config: Conversion configuration
-            on_progress: Optional callback(job_id, progress_percent)
-            on_status_change: Optional callback(job_id, status_str)
-        """
+    def __init__(self, config: ConversionConfig, on_progress=None):
         self.config = config
         self.paths = get_paths()
         self.on_progress = on_progress
-        self.on_status_change = on_status_change
-    
-    def list_beats(self) -> List[Path]:
-        """List all available beat files."""
-        extensions = {'.mp3', '.wav', '.flac', '.m4a', '.aac'}
-        beats = []
-        
-        if self.config.beats_dir.exists():
-            for file in self.config.beats_dir.iterdir():
-                if file.suffix.lower() in extensions and not file.name.startswith('.'):
-                    beats.append(file)
-        
-        return sorted(beats)
-    
-    def list_covers(self) -> List[Path]:
-        """List all available cover image files."""
-        extensions = {'.jpg', '.jpeg', '.png', '.bmp'}
-        covers = []
-        
-        if self.config.covers_dir.exists():
-            for file in self.config.covers_dir.iterdir():
-                if file.suffix.lower() in extensions and not file.name.startswith('.'):
-                    covers.append(file)
-        
-        return sorted(covers)
     
     def convert(self, job: ConversionJob) -> bool:
         """
-        Convert a single beat+cover to video.
-        
-        Args:
-            job: Conversion job to process
-        
-        Returns:
-            True if successful, False otherwise
+        Convert beats + cover to video.
+        Supports BPV (Beats Per Video) via concatenation.
         """
         try:
-            # Ensure output directory exists
             job.output_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            # Parse resolution
             width, height = map(int, self.config.resolution.split('x'))
             
-            # Build FFmpeg command
-            stream = (
-                ffmpeg
-                .input(str(job.cover_file), loop=1, framerate=self.config.fps)
-                .input(str(job.beat_file))
-                .output(
-                    str(job.output_file),
-                    vcodec='libx264',
-                    acodec=self.config.audio_format,
-                    video_bitrate=self.config.video_bitrate,
-                    audio_bitrate=self.config.audio_bitrate,
-                    s=f'{width}x{height}',
-                    shortest=None,
-                    pix_fmt='yuv420p'
-                )
-                .overwrite_output()
+            # Prepare Logic for Multiple Beats
+            audio_inputs = []
+            total_duration_est = 0
+            
+            for beat in job.beat_files:
+                inp = ffmpeg.input(str(beat))
+                audio_inputs.append(inp)
+                # Note: Getting duration requires probing, might slow down start. 
+                # For concat, we usually just concat streams.
+                
+            # Concatenate Audio if > 1
+            if len(audio_inputs) > 1:
+                # [0:a][1:a]...concat=n=N:v=0:a=1[outa]
+                audio_stream = ffmpeg.concat(*audio_inputs, v=0, a=1).node[0]
+            elif len(audio_inputs) == 1:
+                audio_stream = audio_inputs[0]
+            else:
+                raise ValueError("No beat files provided for job.")
+
+            # Input Cover (Loop)
+            # We rely on 'shortest=False' (default) but since image is infinite loop, 
+            # we must set it to match audio duration.
+            # However, ffmpeg 'shortest=1' makes output as short as shortest stream.
+            # If we loop image, image stream is infinite. Audio is finite.
+            # So shortest=1 should work to cut video when audio ends.
+            video_stream = ffmpeg.input(str(job.cover_file), loop=1, framerate=self.config.fps)
+            
+            # Output
+            out = ffmpeg.output(
+                video_stream,
+                audio_stream,
+                str(job.output_file),
+                vcodec='libx264',
+                acodec=self.config.audio_format,
+                video_bitrate=self.config.video_bitrate,
+                audio_bitrate=self.config.audio_bitrate,
+                s=f'{width}x{height}',
+                pix_fmt='yuv420p',
+                shortest=None # We use -shortest argument in .global_args usually vs kwargs
             )
             
-            # Run conversion
-            process = ffmpeg.run_async(stream, pipe_stdout=True, pipe_stderr=True)
+            # Add global args
+            out = out.global_args('-shortest') # Cut when shorter stream (audio) ends
+            out = out.overwrite_output()
             
-            # Simple progress simulation since ffmpeg-python doesn't easily give progress percentage
-            # For a real progress bar we'd need to parse stderr usually, but for now we simulate 
-            # or just verify it's running. Optimally we use a separate thread reading stdout/stderr.
-            # Here we wait for completion.
+            # Run
+            process = ffmpeg.run_async(out, pipe_stdout=True, pipe_stderr=True)
             stdout, stderr = process.communicate()
             
             if process.returncode != 0:
@@ -113,20 +94,5 @@ class VideoConverter:
             job.status = "failed"
             job.error_message = str(e)
             return False
-    
-    def cleanup(self, job: ConversionJob) -> None:
-        """
-        Clean up processed files if configured.
-        
-        Args:
-            job: Completed conversion job
-        """
-        if job.status == "completed":
-            if self.config.auto_delete_beats and job.beat_file.exists():
-                job.beat_file.unlink()
-            
-            if self.config.auto_delete_covers and job.cover_file.exists():
-                job.cover_file.unlink()
-
 
 __all__ = ['VideoConverter']

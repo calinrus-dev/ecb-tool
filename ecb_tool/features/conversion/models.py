@@ -1,8 +1,8 @@
 """Conversion data models."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 
 @dataclass
@@ -43,7 +43,7 @@ class ConversionJob:
     """Represents a single conversion job."""
     
     id: str
-    beat_file: Path
+    beat_files: List[Path]  # Changed to list
     cover_file: Path
     output_file: Path
     status: str = "pending"  # pending, processing, completed, failed
